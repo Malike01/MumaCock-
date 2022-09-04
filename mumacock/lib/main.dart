@@ -1,30 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:mumacock/screens/cockctail_details_page/cocktail_details_view.dart';
-import 'package:mumacock/screens/cocktail_maker_page/cocktail_maker_view.dart';
-import 'package:mumacock/screens/cocktail_recipe_page/cocktail_recipe_view.dart';
+import 'package:mumacock/utils/helpers/router_helper.dart';
+import 'utils/helpers/locator_helper.dart';
 
-void main() {
+void main() async{
+ await initializeLocator();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+   const MyApp({Key? key, }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: "/",
-      routes: {
-        "/CockTailMaker": (context) => const CocktailMakerView(),
-        "/CockTailDetails": (context) => const CockTailDetailsView(),
-      },
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
+      onGenerateRoute: getIt<RouterHelper>().generateRoute,
       theme: ThemeData(
-
         primarySwatch: Colors.blue,
       ),
-      home: const CocktailRecipeView(),
     );
   }
 }

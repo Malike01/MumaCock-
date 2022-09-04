@@ -1,9 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hexcolor/hexcolor.dart';
-import 'package:mumacock/screens/cocktail_recipe_page/bottomNavBar.dart';
-import 'package:mumacock/screens/cocktail_recipe_page/card_view.dart';
-
+import 'package:mumacock/screens/cocktail_recipe_page/cocktail_recipe_viewmodel.dart';
+import 'package:mumacock/utils/constants/double_contants.dart';
+import 'package:mumacock/utils/constants/string_constants.dart';
+import 'package:mumacock/utils/styles/custom_color_styles.dart';
+import 'package:mumacock/utils/widgets/skeletons/view_model_skeleton.dart';
+import '../../utils/constants/route_constants.dart';
+import '../../utils/helpers/locator_helper.dart';
+import '../../utils/widgets/custom_widget/card_view.dart';
 
 class CocktailRecipeView extends StatefulWidget {
   const CocktailRecipeView({Key? key}) : super(key: key);
@@ -13,168 +16,93 @@ class CocktailRecipeView extends StatefulWidget {
 }
 
 class _CocktailRecipeViewState extends State<CocktailRecipeView> {
-  final double _borderRadius = 24.0;
-
+  final CocktailRecipeViewModel _viewModel = getIt<CocktailRecipeViewModel>();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(30.0),
-                  child: ListView.builder(
-                      itemCount: 10,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                              child: Stack(
-                                  children: <Widget>[
-                                    CardCockTailContainer(
-                                      title: "Kokteyl",
-                                        borderRadius: _borderRadius,
-                                        colors: [
-                                          HexColor("#ffd6ff"),
-                                          HexColor("#e7c6ff")
-                                        ]),
-                                    CardCockTailPosition(
-                                        borderRadius: _borderRadius),
-                                    Positioned(
-                                      bottom: 10,
-                                        left: 20,
-                                        child: Row(
-                                      children:<Widget> [
-                                        ElevatedButton(
-                                            onPressed: (){
-                                              _cocktailDetailsGet(context);
-                                            },
-                                            child: Text("İncele"),
-                                    style: ButtonStyle(
-                                        backgroundColor: MaterialStateProperty.all<Color>(HexColor("#bbd0ff")),
-                                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                        RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30.0),
-                                            side: BorderSide(color: HexColor("#bbd0ff")),
-                                        ),
-                                    ))
-                                        )],
-                                    )
-                                    )]
-                              )
-                          ),
-                        );
-                      }
-                  ),
-                ),
-              )
-        ],
-      ),
-      bottomNavigationBar: _bottomNavBar(context),
-      appBar:  AppBar(
-        leading: Icon(Icons.home),
+    return ViewModelSkeleton<CocktailRecipeViewModel>(
+      builder: (viewModel) => _buildPage(),
+      viewModel: _viewModel,
+    );
+  }
 
-        elevation: 10,
-         backgroundColor:  HexColor("#c8b6ff"),
-         title:const Text("MumaCock",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),
-         shape: const RoundedRectangleBorder(
-         borderRadius: BorderRadius.only(
-         bottomRight: Radius.circular(40),
-         bottomLeft: Radius.circular(40),
-    )
-    ),
-    ));
+  _buildPage() {
+    const double _borderRadius = 24.0;
+    return Scaffold(
+        body: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(getIt<DoubleConstants>().border_radius),
+                child: ListView.builder(
+                    itemCount: _viewModel.cocktailRecipeData?.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                            child: Stack(children: <Widget>[
+                              CardCockTailContainer(
+                                  category: _viewModel
+                                      .cocktailRecipeData?[index].strCategory ??
+                                      "Other",
+                                  imageURL: _viewModel.cocktailRecipeData?[index]
+                                      .strDrinkThumb ??
+                                      getIt<StringConstants>().defaultURL,
+                                  title: _viewModel
+                                      .cocktailRecipeData?[index].strDrink ??
+                                      "Error",
+                                  borderRadius: _borderRadius,
+                                  colors: _viewModel.cocktailRecipeData?[index].strCategory!="Cocktail"
+                                      && _viewModel.cocktailRecipeData?[index].strIngredient2!="Gin"
+                                      ? [
+                                    Colors.white,
+                                    getIt<CustomColorStyles>().e7c6ff,
+                                    getIt<CustomColorStyles>().ffd6ff
+                                  ]:
+                                  [
+                                    Colors.white,
+                                    getIt<CustomColorStyles>().b8c0ff,
+                                    getIt<CustomColorStyles>().b8c0ff
+                                  ]
+                              ),
+                              CardCockTailPosition(
+                                index: index,
+                                  borderRadius: _borderRadius),
+                              Positioned(
+                                  bottom: 10,
+                                  left: 20,
+                                  child: Row(
+                                    children: <Widget>[
+                                      ElevatedButton(
+                                          onPressed: () {
+                                            _cocktailDetailsGet(context, index);
+                                          },
+                                          child:const Text("İncele"),
+                                          style: ButtonStyle(
+                                              backgroundColor:_viewModel.cocktailRecipeData?[index].strCategory!="Cocktail"
+                                              && _viewModel.cocktailRecipeData?[index].strIngredient2!="Gin" ?
+                                              MaterialStateProperty.all<Color>(
+                                                  getIt<CustomColorStyles>().bbd0ff)
+                                                  : MaterialStateProperty.all<Color>(
+                                                  getIt<CustomColorStyles>().e7c6ff),
+                                              shape: MaterialStateProperty.all<
+                                                  RoundedRectangleBorder>(
+                                                RoundedRectangleBorder(
+                                                  borderRadius:
+                                                  BorderRadius.circular(getIt<DoubleConstants>().border_radius),
+                                                  side: BorderSide(
+                                                      color: getIt<CustomColorStyles>().bbd0ff),
+                                                ),
+                                              )))],
+                                  ))]
+                            )));
+                    })),
+            )],
+        ),
+       );
   }
 }
-  _bottomNavBar(context) {
-    return Container(
-      height: 95,
-      child: Stack(
-        children: <Widget>[
-          Positioned(
-           bottom: 0.0,
-              child: ClipPath(
-                clipper: NavbarCustomClip(),
-                child: Container(
-                height: 60,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: [
-                        HexColor("#c8b6ff"),
-                        HexColor("#b8c0ff")
-                      ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter
-                  )
-                ),
-              )
-          )
-      ),
-          Positioned(
-            bottom: 45,
-            width: MediaQuery.of(context).size.width,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children:<Widget> [
-                  _buildNavItem(Icons.local_drink,true),
-                  const SizedBox(width: 1),
-                  _buildNavItem(Icons.local_drink,false),
-                  const SizedBox(width: 1),
-                  _buildNavItem(Icons.favorite,false),
-                ],
-              )
-      ),
-          Positioned(
-            bottom: 10,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children:const <Widget>[
-                  SizedBox(width:35),
-                  Text("Kokteyl Tarifi",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),
-                   SizedBox(width:60),
-                   Text("Kokteyl Mix",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),
-                   SizedBox(width:50),
-                   Text("Favorilerim",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),
-                ],
-              )
-          )
-        ],
-      ),
-    );
 
-}
-
-_buildNavItem(IconData icon, bool active) {
-  return ElevatedButton(
-    style: ButtonStyle(shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-        RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
-            side: BorderSide(color: HexColor("#bbd0ff"))
-        )
-    ),
-        backgroundColor: active
-            ? MaterialStateProperty.all<Color>(Colors.white)
-            : MaterialStateProperty.all<Color>(HexColor("#bbd0ff"))),
-   onPressed: (){
-   },
-    child: CircleAvatar(
-      radius: 25,
-      backgroundColor:active
-          ? Colors.white.withOpacity(0.9)
-          : Colors.transparent,
-      child: Icon(icon,color: active
-          ?Colors.black
-          :Colors.white.withOpacity(0.9)),
-    ),
-  );
-}
-
-
-_cocktailMakerGet(BuildContext context){
-  Navigator.of(context).pushNamed("/ShoppingList");
-}
-
-_cocktailDetailsGet(BuildContext context){
-  Navigator.of(context).pushNamed("/CockTailDetails");
+_cocktailDetailsGet(BuildContext context, int index) {
+  Navigator.of(context)
+      .pushNamed(RouteConstants.cocktailDetails, arguments: index);
 }

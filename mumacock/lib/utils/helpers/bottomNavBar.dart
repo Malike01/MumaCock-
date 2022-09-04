@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 
 class NavbarCustomClip extends CustomClipper<Path>{
   @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) {
+    return true;
+  }
+
+  @override
   Path getClip(Size size) {
     Path path=Path();
     var width= size.width;

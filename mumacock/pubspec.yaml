@@ -31,6 +31,13 @@ dependencies:
     sdk: flutter
   hexcolor: ^2.0.7
   material_color_generator: ^1.1.0
+  get_it: ^7.2.0
+  http: ^0.13.4
+  stacked: ^2.2.7
+  font_awesome_flutter: ^10.1.0
+  scaled_list: ^2.0.0
+
+
 
 
   # The following adds the Cupertino Icons font to your application.

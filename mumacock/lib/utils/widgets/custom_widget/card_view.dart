@@ -2,13 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'dart:ui' as ui;
 
+import '../../../screens/cocktail_recipe_page/cocktail_recipe_viewmodel.dart';
+import '../../helpers/locator_helper.dart';
+import '../../styles/custom_color_styles.dart';
+
+
 class CardCockTailPosition extends StatelessWidget {
-  const CardCockTailPosition({
+   CardCockTailPosition({
     Key? key,
-    required double borderRadius,
+    required double borderRadius, this.index,
   }) : _borderRadius = borderRadius, super(key: key);
 
   final double _borderRadius;
+   CocktailRecipeViewModel? viewModel = getIt<CocktailRecipeViewModel>();
+
+   final int? index;
 
 
   @override
@@ -19,7 +27,7 @@ class CardCockTailPosition extends StatelessWidget {
         right: 0,
         child: CustomPaint(
           size: Size(80,100),
-          painter: CardShapePaint(HexColor("#ffd6ff"),HexColor("#e7c6ff"),_borderRadius),
+          painter: viewModel?.cocktailRecipeData?[index!].strCategory!="Cocktail" ? CardShapePaint(HexColor("#ffd6ff"),HexColor("#e7c6ff"),_borderRadius):CardShapePaint(getIt<CustomColorStyles>().bbd0ff,getIt<CustomColorStyles>().bbd0ff,_borderRadius),
         )
     );
   }
@@ -61,20 +69,47 @@ class CardShapePaint extends CustomPainter{
 }
 
 class CardCockTailContainer extends StatelessWidget {
+
   const CardCockTailContainer({
     Key? key,
     required double borderRadius,
-    required List<Color> colors, required String title,
+    required List<Color> colors,
+    required String title,
+    required this.imageURL,
+     required this.category,
   }) : _borderRadius = borderRadius,_colors=colors, _title=title, super(key: key);
 
   final double _borderRadius;
   final  List<Color> _colors;
   final  String _title;
+  final String imageURL;
+  final String category;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height:200,
+      child: Column(
+        children: [
+          ListTile(
+            leading: ClipRRect(
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(15),
+                ),
+                child: Image.network(
+                  imageURL,
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.fill,
+                )),
+            title: Text(
+              _title,
+              style: TextStyle(color:Colors.deepPurple[300], fontSize: 20),
+            ),
+            subtitle: Text("Category: $category", style: TextStyle(color:Colors.white),
+          ),
+          )],
+      ),
+      height: 150,
       decoration: BoxDecoration(
           borderRadius:BorderRadius.circular(_borderRadius),
           gradient:LinearGradient(
